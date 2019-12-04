@@ -171,6 +171,7 @@ def train(epoch):
             % (train_loss / (batch_idx + 1), train_acc, correct, total),
         )
     lr_scheduler.step()
+    train_loss = train_loss / len(trainloader)
     return train_loss, train_acc
 
 
@@ -213,6 +214,7 @@ def test(epoch):
         ckpt_path = os.path.join(track.trial_dir(), "ckpt.pth")
         torch.save(state, ckpt_path)
         best_acc = acc
+    test_loss = test_loss / len(testloader)
     return test_loss, acc, best_acc
 
 

@@ -136,7 +136,7 @@ optimizer = SGDLRD(
 )
 
 lr_scheduler = optim.lr_scheduler.MultiStepLR(
-    optimizer=optimizer, milestones=[100, 150], gamma=0.1, last_epoch=200
+    optimizer=optimizer, milestones=[100, 150], gamma=0.1
 )
 
 

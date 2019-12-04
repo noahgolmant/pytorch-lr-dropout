@@ -7,6 +7,17 @@ To train a ResNet34 model on CIFAR-10 with the paper's hyperparameters, do
 
 `python main.py --lr=.1 --lr_dropout_rate=0.5`
 
-It uses [track-ml](https://github.com/richardliaw/track/tree/master/track) for logging metrics.
+The original code is from the [pytorch-cifar](https://github.com/kuangliu/pytorch-cifar) repo. It uses [track-ml](https://github.com/richardliaw/track/tree/master/track) for logging metrics. This implementation doesn't add standard dropout.
 
 ## (TODO) Preliminary results
+
+The vanilla method is from`pytorch-cifar`: SGD with `LR=1, momentum=.9 weight_decay=5e-4, batch_size=128`. The SGD-LRD method uses `lr_dropout_rate=0.5`. I ran four trials for each method.
+
+![Alt text](images/lrd_learning_curve.png?raw=true "LRD")
+
+Here are the final test accuracies:
+
+| Method | This repo | Paper |
+| ------ | ------------- | --------- |
+| Vanilla | 95.45% | 95.30% |
+| SGD-LRD |  94.43% | 95.54% |

@@ -70,14 +70,14 @@ transform_test = transforms.Compose(
 )
 
 trainset = torchvision.datasets.CIFAR10(
-    root="./data", train=True, download=True, transform=transform_train
+    root=args.dataroot, train=True, download=True, transform=transform_train
 )
 trainloader = torch.utils.data.DataLoader(
     trainset, batch_size=128, shuffle=True, num_workers=2
 )
 
 testset = torchvision.datasets.CIFAR10(
-    root="./data", train=False, download=True, transform=transform_test
+    root=args.dataroot, train=False, download=True, transform=transform_test
 )
 testloader = torch.utils.data.DataLoader(
     testset, batch_size=100, shuffle=False, num_workers=2
@@ -207,19 +207,23 @@ def test(epoch):
         state = {"net": net.state_dict(), "acc": acc, "epoch": epoch}
         if not os.path.isdir("checkpoint"):
             os.mkdir("checkpoint")
-        torch.save(state, "./checkpoint/ckpt.pth")
+        torch.save(state, os.path.join(track.trial_dir(), "./checkpoint/ckpt.pth"))
         best_acc = acc
     return test_loss, acc, best_acc
 
 
-for epoch in range(start_epoch, start_epoch + 200):
-    train_loss, train_acc = train(epoch)
-    test_loss, test_acc, best_acc = test(epoch)
-    track.metric(
-        iteration=epoch,
-        train_loss=train_loss,
-        train_acc=train_acc,
-        test_loss=test_loss,
-        test_acc=test_acc,
-        best_acc=best_acc,
-    )
+with track.trial(args.logroot, None, param_map=vars(args)):
+    for epoch in range(start_epoch, start_epoch + 200):
+        train_loss, train_acc = train(epoch)
+        test_loss, test_acc, best_acc = test(epoch)
+        track.metric(
+            iteration=epoch,
+            train_loss=train_loss,
+            train_acc=train_acc,
+            test_loss=test_loss,
+            test_acc=test_acc,
+            best_acc=best_acc,
+        )
+        track.debug(
+            f"epoch {epoch} finished with stats: best_acc = {best_acc} | train_acc = {train_acc} | test_acc = {test_acc} | train_loss = {train_loss} | test_loss = {test_loss}"
+        )

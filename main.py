@@ -1,6 +1,6 @@
 """
 Train CIFAR10 with PyTorch using "learning rate dropout" (https://arxiv.org/abs/1912.00144)
-The rest of this code is based off of the excellt 'pytorch-cifar' repo:
+The rest of this code is based off of the excellent 'pytorch-cifar' repo:
     https://github.com/kuangliu/pytorch-cifar
 
 Author: Noah Golmant

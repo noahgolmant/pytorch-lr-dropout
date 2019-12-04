@@ -7,6 +7,6 @@ To train a ResNet34 model on CIFAR-10 with the paper's hyperparameters, do
 
 `python train.py --lr=.1 --lr_dropout_rate=0.5`
 
-It uses [track-mk](https://github.com/richardliaw/track/tree/master/track) for logging metrics.
+It uses [track-ml](https://github.com/richardliaw/track/tree/master/track) for logging metrics.
 
 ## (TODO) Preliminary results

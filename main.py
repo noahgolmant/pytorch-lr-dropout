@@ -36,6 +36,7 @@ parser.add_argument(
 parser.add_argument(
     "--dataroot", default="~/data", type=str, help="Download CIFAR data here"
 )
+parser.add_argument("--seed", default=0, type=int, help="pytorch random seed")
 
 parser.add_argument(
     "--lr_dropout_rate",
@@ -47,6 +48,7 @@ parser.add_argument(
 
 args = parser.parse_args()
 
+torch.manual_seed(args.seed)
 device = "cuda" if torch.cuda.is_available() else "cpu"
 best_acc = 0  # best test accuracy
 start_epoch = 0  # start from epoch 0 or last checkpoint epoch
@@ -121,7 +123,8 @@ if args.resume:
     # Load checkpoint.
     print("==> Resuming from checkpoint..")
     assert os.path.isdir("checkpoint"), "Error: no checkpoint directory found!"
-    checkpoint = torch.load("./checkpoint/ckpt.pth")
+    ckpt_path = os.path.join(track.trial_dir(), "ckpt.pth")
+    checkpoint = torch.load(ckpt_path)
     net.load_state_dict(checkpoint["net"])
     best_acc = checkpoint["acc"]
     start_epoch = checkpoint["epoch"]
@@ -207,7 +210,8 @@ def test(epoch):
         state = {"net": net.state_dict(), "acc": acc, "epoch": epoch}
         if not os.path.isdir("checkpoint"):
             os.mkdir("checkpoint")
-        torch.save(state, os.path.join(track.trial_dir(), "./checkpoint/ckpt.pth"))
+        ckpt_path = os.path.join(track.trial_dir(), "ckpt.pth")
+        torch.save(state, ckpt_path)
         best_acc = acc
     return test_loss, acc, best_acc
 

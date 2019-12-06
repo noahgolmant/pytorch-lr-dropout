@@ -19,7 +19,8 @@ import os
 import argparse
 
 from models import *
-from optimizer import SampleMode, SGDLRD
+from optimizer import SampleMode, OfficialSGDLRD
+from optimizer import SGDLRD as MySGDLRD
 from utils import progress_bar
 
 import skeletor
@@ -34,18 +35,16 @@ def supply_args(parser):
     )
 
     parser.add_argument(
-        "--logroot", default="./logs", type=str, help="track-ml log directory"
-    )
-    parser.add_argument(
-        "--dataroot", default="~/data", type=str, help="Download CIFAR data here"
-    )
-    parser.add_argument("--seed", default=0, type=int, help="pytorch random seed")
-
-    parser.add_argument(
         "--lr_dropout_rate",
         default=0.5,
         type=float,
         help="Bernoulli parameter for the random LR mask",
+    )
+
+    parser.add_argument(
+        "--use_official_optimizer",
+        action="store_true",
+        help="if true, use optimizer implementation from official repo",
     )
 
     parser.add_argument(
@@ -58,7 +57,6 @@ def supply_args(parser):
 
 
 def run(args):
-    torch.manual_seed(args.seed)
     device = "cuda" if torch.cuda.is_available() else "cpu"
     best_acc = 0  # best test accuracy
     start_epoch = 0  # start from epoch 0 or last checkpoint epoch
@@ -127,7 +125,7 @@ def run(args):
     net = net.to(device)
     if device == "cuda":
         net = torch.nn.DataParallel(net)
-        cudnn.benchmark = True
+        # cudnn.benchmark = True
 
     if args.resume:
         # Load checkpoint.
@@ -141,14 +139,23 @@ def run(args):
 
     criterion = nn.CrossEntropyLoss()
 
-    optimizer = SGDLRD(
-        net.parameters(),
-        lr=args.lr,
-        lr_dropout_rate=args.lr_dropout_rate,
-        momentum=0.9,
-        weight_decay=5e-4,
-        sample_mode=SampleMode[args.sample_mode],
-    )
+    if args.use_official_optimizer:
+        optimizer = OfficialSGDLRD(
+            net.parameters(),
+            lr=args.lr,
+            dropout=args.lr_dropout_rate,
+            momentum=0.9,
+            weight_decay=5e-4,
+        )
+    else:
+        optimizer = MySGDLRD(
+            net.parameters(),
+            lr=args.lr,
+            lr_dropout_rate=args.lr_dropout_rate,
+            momentum=0.9,
+            weight_decay=5e-4,
+            sample_mode=SampleMode[args.sample_mode],
+        )
 
     lr_scheduler = optim.lr_scheduler.MultiStepLR(
         optimizer=optimizer, milestones=[100, 150], gamma=0.1
@@ -185,8 +192,7 @@ def run(args):
         train_loss = train_loss / len(trainloader)
         return train_loss, train_acc
 
-    def test(epoch):
-        global best_acc
+    def test(epoch, best_acc=best_acc):
         net.eval()
         test_loss = 0
         correct = 0

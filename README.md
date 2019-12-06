@@ -18,4 +18,4 @@ Here are the final test accuracies (averaged over four seeds):
 | Method | This repo (original sampling) | This repo (`torch.bernoulli` sampling) | Paper (reported) | Paper (indendent run) |
 | ------ | ------------- | --------- | -------- | ------- |
 | Vanilla | 95.45% ± 0.07| - | 95.30% | - |
-| SGD-LRD |  94.51% ± 0.22 | 95.54% ± 0.08 | 95.54 | 95.64 ± 0.22 |
+| SGD-LRD |  94.51% ± 0.22 | 94.36% ± 0.08 | 95.54% | 95.64% ± 0.22 |

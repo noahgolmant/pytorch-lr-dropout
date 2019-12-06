@@ -1,7 +1,5 @@
 # pytorch-lr-dropout
-"Learning Rate Dropout" in PyTorch
-
-This repo contains a PyTorch implementation of learning rate dropout from the paper "[Learning Rate Dropout](https://arxiv.org/abs/1912.00144)" by Lin et al.
+This repo contains a PyTorch implementation of learning rate dropout from the paper "[Learning Rate Dropout](https://arxiv.org/abs/1912.00144)" by Lin et al. The official implementation can now be found [here](https://github.com/HuangxingLin123/Learning-Rate-Dropout).
 
 To train a ResNet34 model on CIFAR-10 with the paper's hyperparameters, do
 

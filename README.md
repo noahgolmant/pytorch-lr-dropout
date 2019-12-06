@@ -11,13 +11,13 @@ The original code is from the [pytorch-cifar](https://github.com/kuangliu/pytorc
 
 ## Preliminary results
 
-The vanilla method is from`pytorch-cifar`: SGD with `LR=1, momentum=.9 weight_decay=5e-4, batch_size=128`. The SGD-LRD method uses `lr_dropout_rate=0.5`. I ran four trials for each method.
+The vanilla method is from`pytorch-cifar`: SGD with `LR=1, momentum=.9 weight_decay=5e-4, batch_size=128`. The SGD-LRD method uses `lr_dropout_rate=0.5`. I ran four trials for each method. When I first tried this, the official implementation wasn't available, so I used a different function to generate the random binary mask. It turns out that the two perform differently. Even though this appeared to be the only difference, the optimizer from the official repo performs significantly better (albeit with higher variance).
 
 ![Alt text](images/lrd_learning_curve.png?raw=true "LRD")
 
-Here are the final test accuracies:
+Here are the final test accuracies (averaged over four seeds):
 
-| Method | This repo | Paper |
-| ------ | ------------- | --------- |
-| Vanilla | 95.45% | 95.30% |
-| SGD-LRD |  94.43% | 95.54% |
+| Method | This repo (original sampling) | This repo (`torch.bernoulli` sampling) | Paper (reported) | Paper (indendent run) |
+| ------ | ------------- | --------- | -------- | ------- |
+| Vanilla | 95.45% ± 0.07| - | 95.30% | - |
+| SGD-LRD |  94.51% ± 0.22 | 95.54% ± 0.08 | 95.54 | 95.64 ± 0.22 |

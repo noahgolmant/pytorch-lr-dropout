@@ -2,5 +2,5 @@ lr: 0.1
 dataroot: /root/data/
 lr_dropout_rate: 0.5
 use_official_optimizer: true
-seed: 0
-  #grid_search: [0, 1, 2, 3]
+seed:
+  grid_search: [0, 1, 2, 3]

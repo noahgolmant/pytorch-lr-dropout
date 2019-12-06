@@ -1,0 +1,6 @@
+lr_dropout_rate:
+  grid_search: [0.1, 0.3, 0.7, 0.9]
+use_official_optimizer:
+  grid_search: [true, false]
+seed:
+  grid_search: [0, 1, 2, 3]

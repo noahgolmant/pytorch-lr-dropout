@@ -1,0 +1,8 @@
+lr: 0.1
+logroot: /root/code/pytorch-lr-dropout/logs
+dataroot: /root/data/
+lr_dropout_rate: 0.5
+sample_mode:
+  grid_search: ['unif_cdf', 'bernoulli']
+seed:
+  grid_search: [0, 1, 2, 3]

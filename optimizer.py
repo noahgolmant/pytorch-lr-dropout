@@ -1,9 +1,11 @@
 """
 
 """
+from enum import Enum
 import torch
 from torch.optim import Optimizer
 
+SampleMode = Enum("SampleMode", "unif_cdf bernoulli")
 
 ## stolen from torch.optim.optimizer
 class _RequiredParameter(object):
@@ -49,6 +51,7 @@ class SGDLRD(Optimizer):
         dampening=0,
         weight_decay=0,
         nesterov=False,
+        sample_mode=SampleMode.unif_cdf,
     ):
         if lr is not required and lr < 0.0:
             raise ValueError("Invalid learning rate: {}".format(lr))
@@ -64,6 +67,8 @@ class SGDLRD(Optimizer):
             raise ValueError("Invalid momentum value: {}".format(momentum))
         if weight_decay < 0.0:
             raise ValueError("Invalid weight_decay value: {}".format(weight_decay))
+
+        self.sample_mode = sample_mode
 
         defaults = dict(
             lr=lr,
@@ -119,14 +124,21 @@ class SGDLRD(Optimizer):
 
                 # construct random binary mask
                 # each parameter retained with probability `lr_dropout_rate`
-                device = d_p.get_device() if d_p.is_cuda else "cpu"
-                mask = (
-                    torch.rand_like(d_p, device=device, requires_grad=False)
-                    < lr_dropout_rate
-                ).type(dtype=d_p.dtype)
+                mask = _get_mask(d_p, lr_dropout_rate, self.sample_mode)
                 # apply the mask!
                 d_p.mul_(mask)
 
                 p.data.add_(-group["lr"], d_p)
 
         return loss
+
+
+def _get_mask(data, dropout, sample_mode):
+    device = data.get_device() if data.is_cuda else "cpu"
+    if sample_mode == SampleMode.unif_cdf:
+        mask = torch.rand_like(data, device=device, requires_grad=False) < dropout
+    else:
+        mask = torch.ones_like(data, device=device) * dropout
+        mask = torch.bernoulli(mask)
+    mask = mask.type(dtype=data.dtype)
+    return mask

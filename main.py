@@ -19,7 +19,7 @@ import os
 import argparse
 
 from models import *
-from optimizer import SGDLRD
+from optimizer import SampleMode, SGDLRD
 from utils import progress_bar
 
 import track
@@ -43,6 +43,14 @@ parser.add_argument(
     default=0.5,
     type=float,
     help="Bernoulli parameter for the random LR mask",
+)
+
+parser.add_argument(
+    "--sample_mode",
+    type=str,
+    choices=["unif_cdf", "bernoulli"],
+    default="unif_cdf",
+    help="for debugging: which random binary mask sampling function to use",
 )
 
 
@@ -130,12 +138,15 @@ if args.resume:
     start_epoch = checkpoint["epoch"]
 
 criterion = nn.CrossEntropyLoss()
+
+
 optimizer = SGDLRD(
     net.parameters(),
     lr=args.lr,
     lr_dropout_rate=args.lr_dropout_rate,
     momentum=0.9,
     weight_decay=5e-4,
+    sample_mode=SampleMode[args.sample_mode],
 )
 
 lr_scheduler = optim.lr_scheduler.MultiStepLR(
